@@ -1,1 +1,4 @@
 *.pyc
+*.lock
+
+dashboard/target/*
