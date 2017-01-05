@@ -9,6 +9,7 @@ import time
 import datetime
 from time import sleep
 
+import config
 import login
 
 
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     print "work on %s" % args.type
 
     threads = []
-    login_thread = login.LoginThread(4 * 60)
+    login_thread = login.LoginThread(config.TIME_DAYS, 5, 2 * 60)
     login_thread.setDaemon(True)
     threads.append(login_thread)
 
