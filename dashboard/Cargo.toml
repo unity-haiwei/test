@@ -5,6 +5,7 @@ authors = ["Haiwei <haiweili@unity3d.com>"]
 
 [dependencies]
 libc = "0.2.19"
+rustc-serialize = "0.3.22"
 bson = "0.3.2"
-mongo_driver = "0.4.0"
 chrono = "0.2"
+mongodb = "0.1.8"

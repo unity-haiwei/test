@@ -1,10 +1,12 @@
 
+extern crate core;
+
 #[macro_use(bson, doc)]
 extern crate bson;
-extern crate mongo_driver;
+extern crate rustc_serialize;
+extern crate mongodb;
 extern crate chrono;
 
-use chrono::*;
 
 pub mod config;
 pub mod db;
@@ -13,6 +15,6 @@ mod project;
 
 fn main() {
 
-    db::project::create();
+    project::run();
 
 }
