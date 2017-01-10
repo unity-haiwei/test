@@ -131,5 +131,11 @@ pub fn create(user_id: ObjectId, created_time: DateTime<UTC>) {
     };
     find_one_update("project", project, project_update);
 
-    println!("Created project({}) by user({})", project_id.clone(), user_id.clone());
+    println!("Created project by user({}) on {}", user_id.clone(), created_time);
+}
+
+pub fn remove_all() {
+    println!("Clear projects.");
+
+    remove_many("project", doc!{});
 }

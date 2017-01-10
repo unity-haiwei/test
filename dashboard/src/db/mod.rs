@@ -67,3 +67,15 @@ pub fn insert_one(coll_name: &str, doc: Document) -> ObjectId {
 
     bson::from_bson::<ObjectId>(result_id).unwrap()
 }
+
+
+pub fn remove_many(coll_name: &str, doc: Document) {
+    let client = Client::connect(config::MONGO_IP, config::MONGO_PORT)
+        .ok()
+        .expect("Failed to initialize mongo client.");
+    let coll = client.db(config::DB_NAME).collection(coll_name);
+
+    coll.delete_many(doc, None)
+        .ok()
+        .expect(format!("Failed to Remove doc to {}.", coll_name).as_str());
+}

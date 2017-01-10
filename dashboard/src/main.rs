@@ -9,7 +9,9 @@ extern crate chrono;
 
 
 pub mod config;
+pub mod utils;
 pub mod db;
+
 
 mod project;
 
