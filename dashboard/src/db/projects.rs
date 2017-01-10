@@ -135,7 +135,12 @@ pub fn create(user_id: ObjectId, created_time: DateTime<UTC>) {
 }
 
 pub fn remove_all() {
-    println!("Clear projects.");
+    println!("Clear attachment.");
+    remove_many("attachment", doc!{});
+    
+    println!("Clear project contents.");
+    remove_many("project_content", doc!{});
 
+    println!("Clear projects.");
     remove_many("project", doc!{});
 }

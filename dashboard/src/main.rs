@@ -12,11 +12,20 @@ pub mod config;
 pub mod utils;
 pub mod db;
 
+mod logic;
 
-mod project;
+#[allow(unused_imports)]
+use logic::{LogicTrait, Project, User};
+
 
 fn main() {
 
-    project::run();
+    /*
+    let p = Project {};
+    p.run();
+    */
+
+    let u = User {};
+    u.run();
 
 }
