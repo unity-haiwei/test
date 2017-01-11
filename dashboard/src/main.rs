@@ -20,12 +20,7 @@ use logic::{LogicTrait, Project, User};
 
 fn main() {
 
-    /*
-    let p = Project {};
-    p.run();
-    */
-
-    let u = User {};
+    let u = User::new();
     u.run();
 
 }

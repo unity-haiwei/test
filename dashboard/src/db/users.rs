@@ -1,6 +1,7 @@
 
 use bson::Document;
 use bson::oid::{ObjectId};
+use chrono::{UTC, DateTime};
 use super::*;
 
 
@@ -19,9 +20,7 @@ pub fn remove_education_experience(user_id: ObjectId) {
 }
 
 
-pub fn reset_profile_completeness(user_id: ObjectId) {
-    println!("Reset profile completeness. UserId: {}", user_id);
-
+pub fn reset_profile_completeness(user_id: ObjectId, created_time: DateTime<UTC>) {
     let user_id_clone = user_id.clone();
     let user = find_one("user", Some(doc!{"_id" => user_id_clone}));
 
@@ -31,7 +30,8 @@ pub fn reset_profile_completeness(user_id: ObjectId) {
             "title" => "",
             "description" => "",
             "placeId" => [],
-            "skillIds" => []
+            "skillIds" => [],
+            "createdTime" => created_time
         }
     };
     find_one_update("user", user, user_update);
@@ -42,8 +42,6 @@ pub fn reset_profile_completeness(user_id: ObjectId) {
 
 
 pub fn update_profile_completeness(user_id: ObjectId, doc: Document) {
-    println!("Update profile completeness. UserId: {}", user_id.clone());
-    
     let user = find_one("user", Some(doc!{"_id" => user_id}));
 
     find_one_update("user", user, doc);

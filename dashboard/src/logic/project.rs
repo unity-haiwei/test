@@ -17,6 +17,10 @@ pub struct Project;
 
 impl Project {
 
+    pub fn new() -> Project {
+        Project {}
+    }
+
     fn full_view(&self) {
         println!("Projects Full View ------------------ {}", UTC::now());
         println!("10 projects, 40% on today(4 projects).");
