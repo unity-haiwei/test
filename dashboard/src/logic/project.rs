@@ -9,17 +9,17 @@ use chrono::duration::Duration;
 use config;
 use utils;
 use db;
+use db::DBTrait;
 use super::LogicTrait;
 
 
 #[derive(Clone)]
-pub struct Project;
+pub struct Project {
+    db: db::Project,
+    db_user: db::User,
+}
 
 impl Project {
-
-    pub fn new() -> Project {
-        Project {}
-    }
 
     fn full_view(&self) {
         println!("Projects Full View ------------------ {}", UTC::now());
@@ -32,12 +32,12 @@ impl Project {
         let every_one_created = 2;
         let interval = Duration::minutes(4);
 
-        let users = db::users::all();
+        let users = self.db_user.all();
         if users.len() < total_users {
             panic!("Find users < need users, Find users: {}, Need users: {}", users.len(), total_users);
         }
 
-        db::projects::remove_all();
+        self.db.remove_all();
 
         let mut is_time_change = false;
         let mut users_index = 0;
@@ -53,7 +53,7 @@ impl Project {
 
             let user_id = bson::from_bson::<ObjectId>(users[users_index].get("_id").unwrap().clone()).unwrap();
 
-            db::projects::create(user_id, created_time);
+            self.db.create(user_id, created_time);
 
             if i % every_one_created != 0 {
                 users_index += 1;
@@ -65,7 +65,14 @@ impl Project {
 }
 
 
-impl<'a> LogicTrait for Project  {
+impl LogicTrait for Project  {
+
+    fn new() -> Project {
+        Project {
+            db: db::Project::new(),
+            db_user: db::User::new()
+        }
+    }
 
     fn run(&self) {
         let self_clone = self.clone();

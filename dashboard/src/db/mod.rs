@@ -6,76 +6,70 @@ use bson::oid::ObjectId;
 use bson::Document;
 use mongodb::{Client, ThreadedClient};
 use mongodb::db::ThreadedDatabase;
+use mongodb::coll::Collection;
 
-pub mod users;
-pub mod projects;
+mod users;
+mod projects;
 
-
-pub fn find_one(coll_name: &str, doc: Option<Document>) -> Document {
-    let client = Client::connect(config::MONGO_IP, config::MONGO_PORT)
-        .ok()
-        .expect("Failed to initialize mongo client.");
-    let coll = client.db(config::DB_NAME).collection(coll_name);
-
-    let ret = coll.find_one(doc, None)
-        .ok()
-        .expect(format!("Failed to find one {}.", coll_name).as_str());
-
-    ret.unwrap()
-}
+pub use self::users::User;
+pub use self::projects::Project;
 
 
-pub fn find_all(coll_name: &str) -> Vec<Document> {
-    let client = Client::connect(config::MONGO_IP, config::MONGO_PORT)
-        .ok()
-        .expect("Failed to initialize mongo client.");
-    let coll = client.db(config::DB_NAME).collection(coll_name);
+pub trait DBTrait {
 
-    let result = coll.find(None, None)
-        .ok()
-        .expect(format!("Failed to find all {}.", coll_name).as_str());
+    fn new() -> Self;
 
-    result.map(|x| x.unwrap()).collect::<Vec<Document>>()
-}
+    fn client(&self) -> &Client;
 
+    fn get_coll(&self, coll_name: &str) -> Collection {
+        let coll = self.client().db(config::DB_NAME).collection(coll_name);
 
-pub fn find_one_update(coll_name: &str, filter: Document, update: Document) -> Document {
-    let client = Client::connect(config::MONGO_IP, config::MONGO_PORT)
-        .ok()
-        .expect("Failed to initialize mongo client.");
-    let coll = client.db(config::DB_NAME).collection(coll_name);
+        coll
+    }
 
-    let ret = coll.find_one_and_update(filter, update, None)
-        .ok()
-        .expect(format!("Failed to find one update {}.", coll_name).as_str());
+    fn get_client() -> Client {
+        let client = Client::connect(config::MONGO_IP, config::MONGO_PORT)
+            .ok()
+            .expect("Failed to initialize mongo client.");
 
-    ret.unwrap()
-}
+        client
+    }
 
+    fn find_one(coll: &Collection, doc: Option<Document>) -> Document {
+        let ret = coll.find_one(doc, None)
+            .ok()
+            .expect(format!("Failed to find one {}.", coll.namespace).as_str());
 
-pub fn insert_one(coll_name: &str, doc: Document) -> ObjectId {
-    let client = Client::connect(config::MONGO_IP, config::MONGO_PORT)
-        .ok()
-        .expect("Failed to initialize mongo client.");
-    let coll = client.db(config::DB_NAME).collection(coll_name);
+        ret.unwrap()
+    }
 
-    let ret = coll.insert_one(doc, None)
-        .ok()
-        .expect(format!("Failed to Insert one doc to {}.", coll_name).as_str());
+    fn find_all(coll: &Collection) -> Vec<Document> {
+        let result = coll.find(None, None)
+            .ok()
+            .expect(format!("Failed to find all {}.", coll.namespace).as_str());
 
-    let result_id = ret.inserted_id.unwrap();
+        result.map(|x| x.unwrap()).collect::<Vec<Document>>()
+    }
 
-    bson::from_bson::<ObjectId>(result_id).unwrap()
-}
+    fn find_one_update(coll: &Collection, filter: Document, update: Document) -> Document {
+        let ret = coll.find_one_and_update(filter, update, None)
+            .ok()
+            .expect(format!("Failed to find one update {}.", coll.namespace).as_str());
 
+        ret.unwrap()
+    }
 
-pub fn remove_many(coll_name: &str, doc: Document) {
-    let client = Client::connect(config::MONGO_IP, config::MONGO_PORT)
-        .ok()
-        .expect("Failed to initialize mongo client.");
-    let coll = client.db(config::DB_NAME).collection(coll_name);
+    fn insert_one(coll: &Collection, doc: Document) -> ObjectId {
+        let ret = coll.insert_one(doc, None)
+            .ok()
+            .expect(format!("Failed to Insert one doc to {}.", coll.namespace).as_str());
 
-    coll.delete_many(doc, None)
-        .ok()
-        .expect(format!("Failed to Remove doc to {}.", coll_name).as_str());
+        bson::from_bson::<ObjectId>(ret.inserted_id.unwrap()).unwrap()
+    }
+
+    fn remove_many(coll: &Collection, doc: Document) {
+        coll.delete_many(doc, None)
+            .ok()
+            .expect(format!("Failed to Remove doc to {}.", coll.namespace).as_str());
+    }
 }

@@ -16,3 +16,7 @@ pub const COMMAND_NEW_PROJECT_USER_SCALE: &'static str = "new_project_user_scale
 pub const COMMAND_ZEROTH_DAY_COMPLETENESS: &'static str = "zeroth_day_completeness";
 pub const COMMAND_THIRD_DAY_COMPLETENESS: &'static str = "third_day_completeness";
 pub const COMMAND_SEVENTH_DAY_COMPLETENESS: &'static str = "seventh_day_completeness";
+
+pub const COMMAND_ZEROTH_DAY_PROFILE_COMPLETENESS: &'static str = "zeroth_day_profile_completeness";
+pub const COMMAND_THIRD_DAY_PROFILE_COMPLETENESS: &'static str = "third_day_profile_completeness";
+pub const COMMAND_SEVENTH_DAY_PROFILE_COMPLETENESS: &'static str = "seventh_day_profile_completeness";
