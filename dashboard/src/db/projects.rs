@@ -66,7 +66,7 @@ impl Project {
     }
 
 
-    fn create_project_content(&self, user_id: ObjectId, project_id: ObjectId) -> ObjectId {
+    pub fn create_project_content(&self, user_id: ObjectId, project_id: ObjectId) -> ObjectId {
         let utc_now = UTC::now();
 
         let (thumbnail_id, original_id) = self.create_attachment(user_id.clone());
@@ -108,7 +108,7 @@ impl Project {
         create project content
         update project
     */
-    pub fn create(&self, user_id: ObjectId, created_time: DateTime<UTC>) {
+    pub fn create(&self, user_id: ObjectId, created_time: DateTime<UTC>) -> ObjectId {
         let null = Bson::Null;
         let user_id_clone = user_id.clone();
 
@@ -152,7 +152,7 @@ impl Project {
         };
         Self::find_one_update(coll, project, project_update);
 
-        println!("Created project by user({}) on {}", user_id.clone(), created_time);
+        project_id
     }
 
     pub fn remove_all(&self) {

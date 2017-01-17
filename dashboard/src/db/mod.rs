@@ -10,9 +10,15 @@ use mongodb::coll::Collection;
 
 mod users;
 mod projects;
+mod like;
+mod follow;
+mod comment;
 
 pub use self::users::User;
 pub use self::projects::Project;
+pub use self::like::Like;
+pub use self::follow::Follow;
+pub use self::comment::Comment;
 
 
 pub trait DBTrait {

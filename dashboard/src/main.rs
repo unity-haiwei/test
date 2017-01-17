@@ -16,12 +16,16 @@ mod logic;
 
 
 #[allow(unused_imports)]
-use logic::{LogicTrait, Project, User};
+use logic::*;
 
 
 fn main() {
 
+    /*
     let u = User::new();
     u.run();
+    */
 
+    let f = Comment::new();
+    f.run();
 }

@@ -13,6 +13,7 @@ use db;
 use db::DBTrait;
 use super::LogicTrait;
 
+#[derive(Clone)]
 enum DataType {
     Zeroth,
     Third,
@@ -117,11 +118,10 @@ impl LogicTrait for User {
 
     fn run(&self) {
         println!("Profile Completeenss View ------------------ {}", UTC::now());
-        println!("Change all users created time to 10 days before and completeenss is 0%.");
-        println!("Get 2 users and reset profile completeenss is 0%");
-        println!("Run {}", config::COMMAND_ZEROTH_DAY_PROFILE_COMPLETENESS);
-        println!("Change users created time to 3 days before and completeenss > 20%, Run {}", config::COMMAND_THIRD_DAY_PROFILE_COMPLETENESS);
-        println!("Change users created time to 7 days before and completeenss > 40%, Run {}", config::COMMAND_SEVENTH_DAY_PROFILE_COMPLETENESS);
+        println!("Change all users created time to 8 days before and completeenss is 0%.");
+        println!("Run {}", config::COMMAND_ZEROTH_DAY_COMPLETENESS);
+        println!("Change users created time to 3 days before and completeenss > 20%, Run {}", config::COMMAND_THIRD_DAY_COMPLETENESS);
+        println!("Change users created time to 7 days before and completeenss > 40%, Run {}", config::COMMAND_SEVENTH_DAY_COMPLETENESS);
 
         let commands_setup: Vec<&'static str> = vec![config::COMMAND_DROP, config::COMMAND_SETUP];
 
@@ -129,49 +129,28 @@ impl LogicTrait for User {
         let commands_third: Vec<&'static str> = vec![config::COMMAND_THIRD_DAY_COMPLETENESS];
         let commands_seventh: Vec<&'static str> = vec![config::COMMAND_SEVENTH_DAY_COMPLETENESS];
 
-        let commands_zeroth_profile: Vec<&'static str> = vec![config::COMMAND_ZEROTH_DAY_PROFILE_COMPLETENESS];
-        let commands_third_profile: Vec<&'static str> = vec![config::COMMAND_THIRD_DAY_PROFILE_COMPLETENESS];
-        let commands_seventh_profile: Vec<&'static str> = vec![config::COMMAND_SEVENTH_DAY_PROFILE_COMPLETENESS];
-
-        let created_time = UTC::now().add(Duration::days(-8));
-        let created_time_old = UTC::now().add(Duration::days(-16));
-
-
-        let setup = || utils::executes_commands(&commands_setup);
+        let setup = || utils::executes_commands(&commands_setup, None, None);
         let reset_all = || self.reset_all_users();
 
-        let generate_zeroth_old = || self.generate_data_by_day(DataType::Zeroth, created_time_old);
-        let handle_zeroth_old = || utils::executes_commands(&commands_zeroth);
-        let generate_third_old = || self.generate_data_by_day(DataType::Third, created_time_old);
-        let handle_third_old = || utils::executes_commands(&commands_third);
-        let generate_seventh_old = || self.generate_data_by_day(DataType::Seventh, created_time_old);
-        let handle_seventh_old = || utils::executes_commands(&commands_seventh);
+        let days = vec![DataType::Zeroth, DataType::Third, DataType::Seventh];
 
-        let generate_zeroth_profile = || self.generate_data_by_day(DataType::Zeroth, created_time);
-        let handle_zeroth_profile = || utils::executes_commands(&commands_zeroth_profile);
-        let generate_third_profile = || self.generate_data_by_day(DataType::Third, created_time);
-        let handle_third_profile = || utils::executes_commands(&commands_third_profile);
-        let generate_seventh_profile = || self.generate_data_by_day(DataType::Seventh, created_time);
-        let handle_seventh_profile = || utils::executes_commands(&commands_seventh_profile);
+        let mut handles: Vec<Box<Fn()>> = Vec::new();
+        handles.push(Box::new(setup));
+        handles.push(Box::new(reset_all));
 
+        let created_time = UTC::now().add(Duration::days(-8));
 
-        let mut handles: Vec<&Fn()> = Vec::new();
-        handles.push(&setup);
-        handles.push(&reset_all);
+        for day in &days {
+            let generate_box = Box::new(move || self.generate_data_by_day((*day).clone(), created_time.clone()));
+            handles.push(generate_box);
 
-        handles.push(&generate_zeroth_old);
-        handles.push(&handle_zeroth_old);
-        handles.push(&generate_third_old);
-        handles.push(&handle_third_old);
-        handles.push(&generate_seventh_old);
-        handles.push(&handle_seventh_old);
-
-        handles.push(&generate_zeroth_profile);
-        handles.push(&handle_zeroth_profile);
-        handles.push(&generate_third_profile);
-        handles.push(&handle_third_profile);
-        handles.push(&generate_seventh_profile);
-        handles.push(&handle_seventh_profile);
+            let command_arr = match *day {
+                DataType::Zeroth => commands_zeroth.clone(),
+                DataType::Third => commands_third.clone(),
+                DataType::Seventh => commands_seventh.clone(),
+            };
+            handles.push(Box::new(move || utils::executes_commands(&command_arr, None, None)));
+        }
 
         for f in &handles {
             (*f)();

@@ -53,7 +53,9 @@ impl Project {
 
             let user_id = bson::from_bson::<ObjectId>(users[users_index].get("_id").unwrap().clone()).unwrap();
 
-            self.db.create(user_id, created_time);
+            self.db.create(user_id.clone(), created_time);
+
+            println!("Created project by user({}) on {}", user_id, created_time);
 
             if i % every_one_created != 0 {
                 users_index += 1;
@@ -90,6 +92,6 @@ impl LogicTrait for Project  {
             config::COMMAND_TOTAL_PROJECT_USER_SCALE,
             config::COMMAND_NEW_PROJECT_USER_SCALE
         ];
-        utils::executes_commands(&commands);
+        utils::executes_commands(&commands, None, None);
     }
 }
