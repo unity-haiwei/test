@@ -38,6 +38,10 @@ impl User {
         Self::remove_many(&self.get_coll("education_experience"), doc!{"userId" => user_id});
     }
 
+    pub fn remove_projects(&self, user_id: ObjectId) {
+        Self::remove_many(&self.get_coll("project"), doc!{"userId" => user_id});
+    }
+
     pub fn reset_profile_completeness(&self, user_id: ObjectId, created_time: DateTime<UTC>) {
         let user_coll = &self.get_coll("user");
 
@@ -58,6 +62,7 @@ impl User {
 
         self.remove_work_experience(user_id.clone());
         self.remove_education_experience(user_id.clone());
+        self.remove_projects(user_id.clone());
     }
 
     pub fn update_profile_completeness(&self, user_id: ObjectId, doc: Document) {

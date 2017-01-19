@@ -80,8 +80,8 @@ impl LogicTrait for Comment {
         let commands_setup = vec![config::COMMAND_DROP, config::COMMAND_SETUP];
         let commands_sync = vec![config::COMMAND_TOTAL_COMMENT,
                                  config::COMMAND_NEW_COMMENT,
-                                 config::COMMAND_TOTAL_COMMENT_USER_SCALE,
-                                 config::COMMAND_NEW_COMMENT_USER_SCALE];
+                                 config::COMMAND_TOTAL_COMMENT_USER_PERCENT,
+                                 config::COMMAND_DAILY_COMMENT_USER_PERCENT];
 
         let user_id = utils::get_obj_id(&(self.users[0]));
         let project_id = self.db_project.create(user_id, UTC::now().add(Duration::days(-5)));

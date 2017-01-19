@@ -4,8 +4,9 @@ version = "0.1.0"
 authors = ["Haiwei <haiweili@unity3d.com>"]
 
 [dependencies]
-libc = "0.2.19"
+libc = "0.2.18"
 rustc-serialize = "0.3.22"
 bson = "0.3.2"
 chrono = "0.2"
 mongodb = "0.1.8"
+clap = "2.20.0"

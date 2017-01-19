@@ -65,8 +65,8 @@ impl LogicTrait for Follow {
         let commands_setup = vec![config::COMMAND_DROP, config::COMMAND_SETUP];
         let commands_sync = vec![config::COMMAND_TOTAL_FOLLOW,
                                  config::COMMAND_NEW_FOLLOW,
-                                 config::COMMAND_TOTAL_FOLLOW_USER_SCALE,
-                                 config::COMMAND_NEW_FOLLOW_USER_SCALE];
+                                 config::COMMAND_TOTAL_FOLLOW_USER_PERCENT,
+                                 config::COMMAND_DAILY_FOLLOW_USER_PERCENT];
 
 
         let user_id = utils::get_obj_id(&(self.users[0]));

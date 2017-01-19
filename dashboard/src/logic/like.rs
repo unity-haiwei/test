@@ -69,8 +69,8 @@ impl LogicTrait for Like {
         let commands_setup = vec![config::COMMAND_DROP, config::COMMAND_SETUP];
         let commands_sync = vec![config::COMMAND_TOTAL_LIKE,
                                  config::COMMAND_NEW_LIKE,
-                                 config::COMMAND_TOTAL_LIKE_USER_SCALE,
-                                 config::COMMAND_NEW_LIKE_USER_SCALE];
+                                 config::COMMAND_TOTAL_LIKE_USER_PERCENT,
+                                 config::COMMAND_DAILY_LIKE_USER_PERCENT];
 
 
         let user_id = utils::get_obj_id(&(self.users[0]));

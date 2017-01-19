@@ -89,8 +89,8 @@ impl LogicTrait for Project  {
             config::COMMAND_SETUP,
             config::COMMAND_TOTAL_PROJECT,
             config::COMMAND_NEW_PROJECT,
-            config::COMMAND_TOTAL_PROJECT_USER_SCALE,
-            config::COMMAND_NEW_PROJECT_USER_SCALE
+            config::COMMAND_TOTAL_PROJECT_USER_PERCENT,
+            config::COMMAND_DAILY_PROJECT_USER_PERCENT
         ];
         utils::executes_commands(&commands, None, None);
     }

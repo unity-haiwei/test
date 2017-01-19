@@ -79,11 +79,11 @@ impl User {
         let time_window = Duration::days(-10);
         let created_time = UTC::now().add(time_window);
 
-        for user in users {
-            let user_id = bson::from_bson::<ObjectId>(user.get("_id").unwrap().clone()).unwrap();
-
-            self.db.reset_profile_completeness(user_id.clone(), created_time);
-        }
+        let _ = users.iter()
+                     .map(|ref x| {
+                         let user_id = utils::get_obj_id(x);
+                         self.db.reset_profile_completeness(user_id.clone(), created_time);
+                     });
     }
 
     fn update_doc(&self, created_time: DateTime<UTC>, title: String, description: String) -> Document {
@@ -118,13 +118,13 @@ impl LogicTrait for User {
 
     fn run(&self) {
         println!("Profile Completeenss View ------------------ {}", UTC::now());
+        println!("Create 2 copies of data samples.");
         println!("Change all users created time to 8 days before and completeenss is 0%.");
         println!("Run {}", config::COMMAND_ZEROTH_DAY_COMPLETENESS);
         println!("Change users created time to 3 days before and completeenss > 20%, Run {}", config::COMMAND_THIRD_DAY_COMPLETENESS);
         println!("Change users created time to 7 days before and completeenss > 40%, Run {}", config::COMMAND_SEVENTH_DAY_COMPLETENESS);
 
         let commands_setup: Vec<&'static str> = vec![config::COMMAND_DROP, config::COMMAND_SETUP];
-
         let commands_zeroth: Vec<&'static str> = vec![config::COMMAND_ZEROTH_DAY_COMPLETENESS];
         let commands_third: Vec<&'static str> = vec![config::COMMAND_THIRD_DAY_COMPLETENESS];
         let commands_seventh: Vec<&'static str> = vec![config::COMMAND_SEVENTH_DAY_COMPLETENESS];
