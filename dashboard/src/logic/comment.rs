@@ -7,18 +7,19 @@ use chrono::duration::Duration;
 
 use config;
 use utils;
-use db;
-use db::DBTrait;
+use db::{self, DBTrait};
+use Runtime;
 use super::LogicTrait;
 
 
-pub struct Comment {
+pub struct Comment<'a> {
+    runtime: &'a Runtime,
     db: db::Comment,
     db_project: db::Project,
     users: Vec<Document>,
 }
 
-impl Comment {
+impl<'a> Comment<'a> {
     fn generate_by_day(&self, day: i64, project_id: ObjectId) {
         let created_time = UTC::now().add(Duration::days(-1)).add(Duration::days(-day));
 
@@ -59,11 +60,12 @@ impl Comment {
     }
 }
 
-impl LogicTrait for Comment {
-    fn new() -> Self {
+impl<'a> LogicTrait<'a> for Comment<'a> {
+    fn new(r: &'a Runtime) -> Comment<'a> {
         let db_user = db::User::new();
 
         Comment {
+            runtime: r,
             db: db::Comment::new(),
             db_project: db::Project::new(),
             users: db_user.all(),
@@ -90,12 +92,12 @@ impl LogicTrait for Comment {
 
         let mut handles: Vec<Box<Fn()>> = Vec::new();
 
-        handles.push(Box::new(|| utils::executes_commands(&commands_setup, start_time, end_time)));
+        handles.push(Box::new(|| utils::executes_commands(self.runtime.script_path, &commands_setup, start_time, end_time)));
         handles.push(Box::new(|| self.remove_all()));
         handles.push(Box::new(|| self.generate_by_day(2, project_id.clone())));
         handles.push(Box::new(|| self.generate_by_day(1, project_id.clone())));
         handles.push(Box::new(|| self.generate_deleted_record(utils::get_obj_id(&(self.users[1])), project_id.clone())));
-        handles.push(Box::new(|| utils::executes_commands(&commands_sync, start_time, end_time)));
+        handles.push(Box::new(|| utils::executes_commands(self.runtime.script_path, &commands_sync, start_time, end_time)));
 
         for h in handles {
             (*h)();

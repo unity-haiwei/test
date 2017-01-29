@@ -7,18 +7,19 @@ use chrono::duration::Duration;
 
 use config;
 use utils;
-use db;
-use db::DBTrait;
+use db::{self, DBTrait};
+use Runtime;
 use super::LogicTrait;
 
 
-pub struct Follow {
+pub struct Follow<'a> {
+    runtime: &'a Runtime,
     db: db::Follow,
     db_project: db::Project,
     users: Vec<Document>,
 }
 
-impl Follow {
+impl<'a> Follow<'a> {
     fn generate_by_day(&self, day: i64, project_id: ObjectId) {
         let created_time = UTC::now().add(Duration::days(-1)).add(Duration::days(-day));
 
@@ -44,11 +45,12 @@ impl Follow {
     }
 }
 
-impl LogicTrait for Follow {
-    fn new() -> Self {
+impl<'a> LogicTrait<'a> for Follow<'a> {
+    fn new(r: &'a Runtime) -> Follow<'a> {
         let db_user = db::User::new();
 
         Follow {
+            runtime: r,
             db: db::Follow::new(),
             db_project: db::Project::new(),
             users: db_user.all(),
@@ -74,11 +76,11 @@ impl LogicTrait for Follow {
 
         let mut handles: Vec<Box<Fn()>> = Vec::new();
 
-        handles.push(Box::new(|| utils::executes_commands(&commands_setup, None, None)));
+        handles.push(Box::new(|| utils::executes_commands(self.runtime.script_path, &commands_setup, None, None)));
         handles.push(Box::new(|| self.remove_all()));
         handles.push(Box::new(|| self.generate_by_day(2, project_id.clone())));
         handles.push(Box::new(|| self.generate_by_day(1, project_id.clone())));
-        handles.push(Box::new(|| utils::executes_commands(&commands_sync, None, None)));
+        handles.push(Box::new(|| utils::executes_commands(self.runtime.script_path, &commands_sync, None, None)));
 
         for h in handles {
             (*h)();

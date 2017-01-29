@@ -1,5 +1,4 @@
 use core::ops::Add;
-use std::thread;
 
 use bson;
 use bson::oid::ObjectId;
@@ -8,18 +7,19 @@ use chrono::duration::Duration;
 
 use config;
 use utils;
-use db;
-use db::DBTrait;
+use db::{self, DBTrait};
+use Runtime;
 use super::LogicTrait;
 
 
 #[derive(Clone)]
-pub struct Project {
+pub struct Project<'a> {
+    runtime: &'a Runtime,
     db: db::Project,
     db_user: db::User,
 }
 
-impl Project {
+impl<'a> Project<'a> {
 
     fn full_view(&self) {
         println!("Projects Full View ------------------ {}", UTC::now());
@@ -67,21 +67,18 @@ impl Project {
 }
 
 
-impl LogicTrait for Project  {
+impl<'a> LogicTrait<'a> for Project<'a>  {
 
-    fn new() -> Project {
+    fn new(r: &'a Runtime) -> Project<'a> {
         Project {
+            runtime: r,
             db: db::Project::new(),
             db_user: db::User::new()
         }
     }
 
     fn run(&self) {
-        let self_clone = self.clone();
-        thread::spawn(move || {
-            self_clone.full_view();
-        }).join().unwrap();
-
+        self.full_view();
 
         let commands: Vec<&'static str> = vec!
         [
@@ -92,6 +89,6 @@ impl LogicTrait for Project  {
             config::COMMAND_TOTAL_PROJECT_USER_PERCENT,
             config::COMMAND_DAILY_PROJECT_USER_PERCENT
         ];
-        utils::executes_commands(&commands, None, None);
+        utils::executes_commands(self.runtime.script_path, &commands, None, None);
     }
 }

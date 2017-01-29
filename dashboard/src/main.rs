@@ -14,8 +14,10 @@ pub mod config;
 pub mod utils;
 pub mod db;
 
+mod runtime;
 mod logic;
 
+pub use runtime::Runtime;
 
 use clap::{App, Arg};
 #[allow(unused_imports)]
@@ -23,6 +25,10 @@ use logic::*;
 
 
 fn main() {
+
+    let runtime = &Runtime {
+        script_path: "/Volumes/work/unity/genesis-backend/dashboard/scripts/marketplace",
+    };
 
     let matches = App::new("DataGerenater")
                         .version("1.0")
@@ -44,10 +50,12 @@ fn main() {
     }
 
     match matches.value_of("type").unwrap() {
-        "user" => User::new().run(),
-        "project" => Project::new().run(),
-        "like" => Like::new().run(),
-        "follow" => Follow::new().run(),
-        "comment" => Comment::new().run(),
+        "user" => User::new(runtime).run(),
+        "project" => Project::new(runtime).run(),
+        "like" => Like::new(runtime).run(),
+        "follow" => Follow::new(runtime).run(),
+        "comment" => Comment::new(runtime).run(),
+        _ => User::new(runtime).run(),
     }
+
 }

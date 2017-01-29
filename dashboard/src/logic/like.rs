@@ -7,12 +7,13 @@ use chrono::duration::Duration;
 
 use config;
 use utils;
-use db;
-use db::DBTrait;
+use db::{self, DBTrait};
+use Runtime;
 use super::LogicTrait;
 
 #[derive(Clone)]
-pub struct Like {
+pub struct Like<'a> {
+    runtime: &'a Runtime,
     db: db::Like,
     db_project: db::Project,
     db_user: db::User,
@@ -20,7 +21,7 @@ pub struct Like {
     users: Vec<bson::Document>,
 }
 
-impl Like {
+impl<'a> Like<'a> {
 
     fn generate_by_day(&self, day: i64, project_id: ObjectId) {
         let created_time = UTC::now().add(Duration::days(-1)).add(Duration::days(-day));
@@ -47,12 +48,13 @@ impl Like {
     }
 }
 
-impl LogicTrait for Like {
-    fn new() -> Self {
+impl<'a> LogicTrait<'a> for Like<'a> {
+    fn new(r: &'a Runtime) -> Like<'a> {
         let user_db = db::User::new();
         let users = user_db.all();
 
         Like {
+            runtime: r,
             db: db::Like::new(),
             db_user: user_db,
             db_project: db::Project::new(),
@@ -78,11 +80,11 @@ impl LogicTrait for Like {
 
         let mut handles: Vec<Box<Fn()>> = Vec::new();
 
-        handles.push(Box::new(|| utils::executes_commands(&commands_setup, None, None)));
+        handles.push(Box::new(|| utils::executes_commands(self.runtime.script_path, &commands_setup, None, None)));
         handles.push(Box::new(|| self.remove_all()));
         handles.push(Box::new(|| self.generate_by_day(2, project_id.clone())));
         handles.push(Box::new(|| self.generate_by_day(1, project_id.clone())));
-        handles.push(Box::new(|| utils::executes_commands(&commands_sync, None, None)));
+        handles.push(Box::new(|| utils::executes_commands(self.runtime.script_path, &commands_sync, None, None)));
 
         for h in handles {
             (*h)();

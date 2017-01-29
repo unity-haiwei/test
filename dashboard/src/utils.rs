@@ -4,17 +4,16 @@ use chrono::{DateTime, UTC};
 use bson;
 use bson::Document;
 use bson::oid::ObjectId;
-use config;
 
 
-pub fn executes_commands(commands: &Vec<&'static str>, start: Option<DateTime<UTC>>, end: Option<DateTime<UTC>>) {
+pub fn executes_commands(script_path: &str, commands: &Vec<&'static str>, start: Option<DateTime<UTC>>, end: Option<DateTime<UTC>>) {
     for c in commands {
         println!("-----------------------------------------------------");
         println!("Execute Command: python easurement.py {} -start {:?} -end {:?}", c, start, end);
 
         let mut output = Command::new("python");
         output.env("SC_ENV", "onebox");
-        output.current_dir(config::SCRIPTS_PATH);
+        output.current_dir(script_path);
         output.arg("measurement.py");
         output.arg(c);
 

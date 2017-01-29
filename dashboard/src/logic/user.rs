@@ -11,6 +11,7 @@ use config;
 use utils;
 use db;
 use db::DBTrait;
+use Runtime;
 use super::LogicTrait;
 
 #[derive(Clone)]
@@ -22,12 +23,13 @@ enum DataType {
 
 
 #[derive(Clone)]
-pub struct User {
+pub struct User<'a> {
+    runtime: &'a Runtime,
     db: db::User,
     users: Vec<Document>,
 }
 
-impl User {
+impl<'a> User<'a> {
 
     fn generate_data_by_day(&self, day: DataType, created_time: DateTime<UTC>) {
         println!("--------------------------------------------");
@@ -101,9 +103,9 @@ impl User {
 }
 
 
-impl LogicTrait for User {
+impl<'a> LogicTrait<'a> for User<'a> {
 
-    fn new() -> User {
+    fn new(r: &'a Runtime) -> User<'a> {
         let db_user = db::User::new();
 
         let users = db_user.all();
@@ -111,6 +113,7 @@ impl LogicTrait for User {
         user_data.extend_from_slice(&users[0..2]);
 
         User {
+            runtime: r,
             db: db_user,
             users: user_data,
         }
@@ -129,7 +132,7 @@ impl LogicTrait for User {
         let commands_third: Vec<&'static str> = vec![config::COMMAND_THIRD_DAY_COMPLETENESS];
         let commands_seventh: Vec<&'static str> = vec![config::COMMAND_SEVENTH_DAY_COMPLETENESS];
 
-        let setup = || utils::executes_commands(&commands_setup, None, None);
+        let setup = || utils::executes_commands(self.runtime.script_path, &commands_setup, None, None);
         let reset_all = || self.reset_all_users();
 
         let days = vec![DataType::Zeroth, DataType::Third, DataType::Seventh];
@@ -149,7 +152,7 @@ impl LogicTrait for User {
                 DataType::Third => commands_third.clone(),
                 DataType::Seventh => commands_seventh.clone(),
             };
-            handles.push(Box::new(move || utils::executes_commands(&command_arr, None, None)));
+            handles.push(Box::new(move || utils::executes_commands(self.runtime.script_path, &command_arr, None, None)));
         }
 
         for f in &handles {
