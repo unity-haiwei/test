@@ -13,12 +13,20 @@ mod projects;
 mod like;
 mod follow;
 mod comment;
+mod job;
+mod team;
+mod proposal;
+mod message;
 
 pub use self::users::User;
 pub use self::projects::Project;
 pub use self::like::Like;
 pub use self::follow::Follow;
 pub use self::comment::Comment;
+pub use self::job::Job;
+pub use self::team::Team;
+pub use self::proposal::Proposal;
+pub use self::message::Message;
 
 
 pub trait DBTrait {

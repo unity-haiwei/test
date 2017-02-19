@@ -34,7 +34,7 @@ fn main() {
                         .version("1.0")
                         .arg(Arg::with_name("type")
                                  .help("Choice data type generater")
-                                 .possible_values(&["user", "project", "like", "follow", "comment"])
+                                 .possible_values(&["user", "project", "like", "follow", "comment", "job", "proposal", "team", "message"])
                                  .required(true)
                                  .takes_value(true))
                         .arg(Arg::with_name("reset")
@@ -55,6 +55,10 @@ fn main() {
         "like" => Like::new(runtime).run(),
         "follow" => Follow::new(runtime).run(),
         "comment" => Comment::new(runtime).run(),
+        "job" => Job::new(runtime).run(),
+        "proposal" => Proposal::new(runtime).run(),
+        "team" => Team::new(runtime).run(),
+        "message" => Message::new(runtime).run(),
         _ => User::new(runtime).run(),
     }
 
